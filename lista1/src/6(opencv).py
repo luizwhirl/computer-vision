@@ -1,7 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 
-entrada_path = 'entradaq6.png'
+entrada_path = "lista1\src\entradaq6.png"
 img = cv2.imread(entrada_path)
 
 if img is None:

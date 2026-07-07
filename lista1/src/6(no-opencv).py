@@ -39,7 +39,7 @@ def filtro_bilateral(imagem, k, sigma_espacial, sigma_cor):
     return np.clip(img_filtrada, 0, 255).astype(np.uint8)
 
 if __name__ == "__main__":
-    entrada_path = "entradaq6.png"
+    entrada_path = "lista1\src\entradaq6.png"
     
     if not os.path.exists(entrada_path):
         print(f"O ficheiro '{entrada_path}' não foi encontrado.")

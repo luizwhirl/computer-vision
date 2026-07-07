@@ -1,7 +1,10 @@
-# !wget -q https://people.sc.fsu.edu/~jburkardt/data/ppma/snail.ascii.ppm -O entrada.ppm
-
+import os
+import urllib.request
 import numpy as np
 import matplotlib.pyplot as plt
+
+# URL da imagem original usada no Colab
+URL_IMAGEM = "https://people.sc.fsu.edu/~jburkardt/data/ppma/snail.ascii.ppm"
 
 def read_ppm(filepath):
     with open(filepath, 'rb') as f:
@@ -26,10 +29,6 @@ def read_ppm(filepath):
         height = int(read_word())
         maxval = int(read_word())
 
-        # elif magic == 'P6':
-        #     data = f.read()
-        #     expected_size = width * height * 3
-        #     img = np.frombuffer(data[:expected_size], dtype=np.uint8).reshape((height, width, 3))
         if magic == 'P3':
             data = f.read().split()
             img = np.array(data, dtype=np.uint8).reshape((height, width, 3))
@@ -64,6 +63,16 @@ if __name__ == "__main__":
     entrada = "caracol.ppm"
     saida = "filtrada.ppm"
     
+    # Automatização: Verifica se a imagem já foi baixada. Se não, faz o download automático.
+    if not os.path.exists(entrada):
+        print(f"O ficheiro '{entrada}' não foi encontrado. Iniciando o download...")
+        try:
+            urllib.request.urlretrieve(URL_IMAGEM, entrada)
+            print(f"Download concluído: '{entrada}' salvo com sucesso!")
+        except Exception as e:
+            print(f"Erro ao baixar a imagem: {e}")
+            exit(1)
+            
     imagem = read_ppm(entrada)
     
     n = 5
@@ -77,7 +86,7 @@ if __name__ == "__main__":
     axes[0].axis('off')
     
     axes[1].imshow(resultado)
-    axes[1].set_title(f'fiiltro blur ({n}x{n})')
+    axes[1].set_title(f'filtro blur ({n}x{n})')
     axes[1].axis('off')
     
     plt.tight_layout()
