@@ -1,0 +1,17 @@
+# bibliotecas base e pdi
+numpy
+matplotlib
+opencv-contrib-python
+Pillow
+
+# ML e Deep Learning
+scikit-learn
+pandas
+tensorflow
+
+# computer vision avançada (YOLO)
+ultralytics
+
+# utilitários de download (Google Drive e Kaggle)
+gdown
+kagglehub

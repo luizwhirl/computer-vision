@@ -9,28 +9,27 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+import kagglehub
 
 # Configurações globais
-dataset_path = 'PetImages'
-class_names = ['Cat', 'Dog']
+print("A descarregar a base de dados via kagglehub...")
+dataset_path = kagglehub.dataset_download("tongpython/cat-and-dog")
+class_names = ['cats', 'dogs']
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
 
-# ===================================================================
-# NOVIDADE: Limitando a quantidade de imagens antes de passar pro Keras
-# ===================================================================
-LIMITE_POR_CLASSE = 500  # <-- Altere este valor se quiser mais ou menos imagens
+LIMITE_POR_CLASSE = 500  
 
 filepaths = []
 labels = []
 
 print(f"A selecionar um limite de {LIMITE_POR_CLASSE} imagens por classe...")
 for class_name in class_names:
-    paths = glob.glob(os.path.join(dataset_path, class_name, '*.*'))
+    paths = glob.glob(os.path.join(dataset_path, '**', class_name, '*.*'), recursive=True)
     
     valid_count = 0
     for path in paths:
-        # Filtro de segurança: ignora arquivos vazios corrompidos ou Thumbs.db
+        # Filtro de segurança: ignora ficheiros vazios ou Thumbs.db
         if os.path.getsize(path) > 0 and path.lower().endswith(('.png', '.jpg', '.jpeg')):
             filepaths.append(path)
             labels.append(class_name)
@@ -43,11 +42,10 @@ for class_name in class_names:
 df = pd.DataFrame({'filename': filepaths, 'class': labels})
 print(f"Total de imagens que serão utilizadas: {len(df)}")
 
-# 1. Preparação dos Dados (Data Generators com Holdout 70% treino / 30% teste)
+# 1. Preparação dos Dados
 datagen = ImageDataGenerator(rescale=1./255, validation_split=0.30)
 
-print("\nConfigurando o carregamento das imagens de Treino (70%)...")
-# Note que mudamos de flow_from_directory para flow_from_dataframe
+print("\nA configurar o carregamento das imagens de Treino (70%)...")
 train_gen = datagen.flow_from_dataframe(
     dataframe=df,
     x_col='filename',
@@ -59,7 +57,7 @@ train_gen = datagen.flow_from_dataframe(
     shuffle=True
 )
 
-print("Configurando o carregamento das imagens de Teste (30%)...")
+print("A configurar o carregamento das imagens de Teste (30%)...")
 test_gen = datagen.flow_from_dataframe(
     dataframe=df,
     x_col='filename',
@@ -71,14 +69,10 @@ test_gen = datagen.flow_from_dataframe(
     shuffle=False
 )
 
-# ===================================================================
-# O RESTO DO CÓDIGO CONTINUA EXATAMENTE IGUAL
-# ===================================================================
-
 # 2. Função para criar, treinar e avaliar as CNNs
 def train_and_evaluate_cnn(base_model_class, model_name):
     print(f"\n" + "="*50)
-    print(f" Iniciando Treino do Modelo: {model_name}")
+    print(f" A iniciar o Treino do Modelo: {model_name}")
     print("="*50)
     
     base_model = base_model_class(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
@@ -92,7 +86,6 @@ def train_and_evaluate_cnn(base_model_class, model_name):
     ])
     
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    
     history = model.fit(train_gen, epochs=3, validation_data=test_gen)
     
     y_pred_probs = model.predict(test_gen)
@@ -128,7 +121,7 @@ def plot_validation_examples(indices_list, title_text):
         return
     fig, axes = plt.subplots(1, min(4, len(indices_list)), figsize=(15, 5))
     for i, idx in enumerate(indices_list[:4]):
-        img_path = filenames[idx] # Modificado aqui, pois o DataFrame já passa o caminho completo
+        img_path = filenames[idx] 
         img = plt.imread(img_path)
         
         if len(img.shape) == 2: 

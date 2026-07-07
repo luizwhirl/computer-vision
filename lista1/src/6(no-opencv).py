@@ -42,14 +42,10 @@ if __name__ == "__main__":
     entrada_path = "entradaq6.png"
     
     if not os.path.exists(entrada_path):
-        print(f"arquivo '{entrada_path}' não foi encontrado.")
+        print(f"O ficheiro '{entrada_path}' não foi encontrado.")
     else:
         img_pil = Image.open(entrada_path).convert('RGB')
         entrada = np.array(img_pil)
-        
-        # k = 9
-        # sigma_s = 3.0
-        # sigma_c = 40.0
         
         k = 11
         sigma_s = 5.0
@@ -62,11 +58,12 @@ if __name__ == "__main__":
         
         fig, axes = plt.subplots(1, 2, figsize=(16, 8))
         axes[0].imshow(entrada, cmap=cmap)
-        axes[0].set_title('original')
+        axes[0].set_title('Original')
         axes[0].axis('off')
         
         axes[1].imshow(img_limpa, cmap=cmap)
-        titulo = f'resultado - bilateral k={k}, $\sigma_s$={sigma_s}, $\sigma_c$={sigma_c:.1f}'
+        # O uso de 'r' (Raw String) previne o SyntaxWarning do \sigma
+        titulo = r'Resultado - Bilateral k={}, $\sigma_s$={}, $\sigma_c$={:.1f}'.format(k, sigma_s, sigma_c)
         axes[1].set_title(titulo)
         axes[1].axis('off')
         

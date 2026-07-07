@@ -6,13 +6,18 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+import kagglehub
 
-dataset_path = 'PetImages'
-class_names = ['Cat', 'Dog']
+print("A descarregar a base de dados via kagglehub para evitar alojamento local...")
+# Download gerido pela cache do Kaggle (como no Colab)
+dataset_path = kagglehub.dataset_download("tongpython/cat-and-dog")
+
+# Adaptado para as pastas usuais extraídas
+class_names = ['cats', 'dogs']
 
 def extract_hog_features(image_path):
     img = cv2.imread(image_path)
-    # Proteção contra imagens corrompidas ou arquivos não-imagem no dataset
+    # Proteção contra imagens corrompidas ou ficheiros não-imagem
     if img is None or img.size == 0:
         return None, None
     
@@ -27,10 +32,11 @@ X_hog, y_hog, images_hog = [], [], []
 
 print("A extrair descritores HOG das imagens...")
 for label, class_name in enumerate(class_names):
-    paths = glob.glob(os.path.join(dataset_path, class_name, '*.*'))
+    # Procura recursiva de imagens ('**') independente da pasta root ser 'train' ou 'training_set'
+    paths = glob.glob(os.path.join(dataset_path, '**', class_name, '*.*'), recursive=True)
     
     # limitando a 500 imagens por classe para agilizar o treino
-    for path in paths[:1100]: 
+    for path in paths[:500]: 
         features, img = extract_hog_features(path)
         if features is not None:
             X_hog.append(features)
