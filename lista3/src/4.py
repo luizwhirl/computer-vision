@@ -3,9 +3,8 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-
-BASE_DIR = Path(__file__).resolve().parent
-OUT_DIR = BASE_DIR / "4-results"
+BASE_DIR = Path(__file__).resolve().parent.parent / "imagens" / "quest4"
+OUT_DIR = Path(__file__).resolve().parent.parent / "4_results"
 
 PAIRS = [
     ("garrafa", "garrafa_esq.png", "garrafa_dir.png"),
@@ -13,7 +12,7 @@ PAIRS = [
     ("gar", "gar2.jpg", "gar3.jpg"),
 ]
 
-
+    
 def load_image(filename, max_side=950):
     path = BASE_DIR / filename
     img = cv2.imread(str(path))
@@ -370,7 +369,8 @@ def bgr_to_rgb(img):
 
 
 def show_and_save_grid(name, left, right, disp_color, mask, blurred_bg, result):
-    OUT_DIR.mkdir(exist_ok=True)
+    # Garantir que as subpastas são criadas caso não existam
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     cv2.imwrite(str(OUT_DIR / f"{name}_01_esquerda_retificada.png"), left)
     cv2.imwrite(str(OUT_DIR / f"{name}_02_direita_retificada.png"), right)
@@ -380,6 +380,7 @@ def show_and_save_grid(name, left, right, disp_color, mask, blurred_bg, result):
     cv2.imwrite(str(OUT_DIR / f"{name}_06_modo_retrato.png"), result)
 
     fig, axes = plt.subplots(2, 3, figsize=(17, 11))
+    fig.patch.set_facecolor('white')
     fig.suptitle(
         f"Questao 4 - Modo Retrato por Disparidade: {name}",
         fontsize=15,

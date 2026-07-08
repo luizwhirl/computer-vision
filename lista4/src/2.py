@@ -1,13 +1,25 @@
 import cv2 
 import matplotlib.pyplot as plt 
 from ultralytics import YOLO 
- 
+import os
+import gdown
+
+# 1. Configuração de Diretórios (Garante que tudo fica em lista4/src)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # YOLOv8 pre-treinado 
 model = YOLO('yolov8m.pt') 
  
-video_path = 'bridge.mp4' 
-output_path = 'output_bridge.mp4' 
- 
+video_path = os.path.join(BASE_DIR, 'bridge.mp4') 
+output_path = os.path.join(BASE_DIR, 'output_bridge.mp4') 
+grafico_path = os.path.join(BASE_DIR, 'grafico.png')
+
+# 2. Download dinâmico do Google Drive
+if not os.path.exists(video_path):
+    print("A descarregar o vídeo original do Google Drive...")
+    # Usa o ID extraído do link fornecido
+    gdown.download(id='1BwS2DRpnPf8ZUG4lNsawtfg5r00F44Qe', output=video_path, quiet=False)
+
 # a) processamento e detecçao no video 
 cap = cv2.VideoCapture(video_path) 
  
@@ -30,7 +42,7 @@ nomes_classes = {2: 'Carro', 3: 'Moto', 5: 'Onibus'}
 MIN_BUS_AREA_RATIO = 0.02
 FRAME_AREA = width * height
  
-print("iniciciando o processamento \nisso pode levar algum tempo") 
+print("Iniciando o processamento...\nIsso pode levar algum tempo.") 
  
 while cap.isOpened(): 
     ret, frame = cap.read() 
@@ -39,11 +51,11 @@ while cap.isOpened():
      
     # realiza a detecção no frame atual 
     # no dataset COCO, as classes para veículos são:  
-    # 2 (car)ddd 
+    # 2 (car) 
     # 3 (motorcycle) 
     # 5 (bus) 
     # 7 (truck) 
-    # nisso, o parâmetro 'classes ignora tudo que nao for veículo 
+    # nisso, o parâmetro 'classes' ignora tudo que nao for veículo 
     resultados = model.track(frame, classes=[2, 3, 5], persist=True, verbose=False, conf=0.40, iou=0.45, tracker="botsort.yaml") 
 
     if resultados[0].boxes is not None and len(resultados[0].boxes) > 0:
@@ -86,19 +98,19 @@ while cap.isOpened():
  
 cap.release() 
 out.release() 
-print(f"vídeo processado e salvo nessa mesma hora e nesse mesmo canal") 
+print(f"Vídeo processado e salvo na pasta 'lista4/src' como 'output_bridge.mp4'.") 
  
 # b) plotagem 
 plt.figure(figsize=(12, 6)) 
-plt.plot(lista_frames, contagem_por_frame, color='blue', linewidth=1.5, label='Veículos (carros onibus i motas)') 
+plt.plot(lista_frames, contagem_por_frame, color='blue', linewidth=1.5, label='Veículos (carros, onibus e motos)') 
  
-plt.title('quantidade de veículos detectados ao longo do tempo', fontsize=14) 
-plt.xlabel('tempo (nº quadro/frame)', fontsize=12) 
-plt.ylabel('quantidade de veículos', fontsize=12) 
+plt.title('Quantidade de veículos detectados ao longo do tempo', fontsize=14) 
+plt.xlabel('Tempo (nº quadro/frame)', fontsize=12) 
+plt.ylabel('Quantidade de veículos', fontsize=12) 
 plt.grid(True, linestyle='--', alpha=0.7) 
 plt.legend() 
 plt.tight_layout() 
  
-plt.savefig('grafico.png') 
-print("gráfico salvo") 
+plt.savefig(grafico_path) 
+print(f"Gráfico salvo na pasta 'lista4/src' como 'grafico.png'.") 
 plt.show()
